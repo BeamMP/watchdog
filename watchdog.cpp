@@ -124,8 +124,8 @@ std::string getStack(HANDLE hThread) {
     stack.AddrStack.Mode   = AddrModeFlat;
     stack.AddrFrame.Offset = context.Rbp;
     stack.AddrFrame.Mode   = AddrModeFlat;
-    std::string Report("Stack for thread ID: ");
-    Report += std::to_string(GetThreadId(hThread)) + '\n';
+    std::string Report;
+
     do {
         result = StackWalk64(
                 IMAGE_FILE_MACHINE_AMD64,
@@ -167,9 +167,11 @@ void generate_crash_report(uint32_t Code, size_t Address) {
         te.dwSize = sizeof(te);
         if (Thread32First(h, &te)) {
             do {
-                if (te.dwSize >= FIELD_OFFSET(THREADENTRY32, th32OwnerProcessID) +
-                sizeof(te.th32OwnerProcessID)) {
-                    Report += getStack( OpenThread(READ_CONTROL, FALSE, te.th32ThreadID));
+                if (te.dwSize >= FIELD_OFFSET(THREADENTRY32, th32OwnerProcessID) + sizeof(te.th32OwnerProcessID)) {
+                    if(GetCurrentProcessId() == te.th32OwnerProcessID) {
+                        Report += "Stack for thread ID: " + std::to_string(te.th32ThreadID) + '\n';
+                        Report += getStack( OpenThread(READ_CONTROL, FALSE, te.th32ThreadID));
+                    }
                 }
                 te.dwSize = sizeof(te);
             } while (Thread32Next(h, &te));
