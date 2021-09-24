@@ -42,7 +42,7 @@ public:
         init = true;
     }
     ~heap_array() {
-        free(Data);
+        GlobalFree(Data);
     }
     inline T_* get() noexcept {
         return Data;
