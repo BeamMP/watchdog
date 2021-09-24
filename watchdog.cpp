@@ -75,7 +75,7 @@ std::string getLocation(DWORD64 Address){
     if(Name){
         Result.append(Name+1);
         char buffer[20];
-        auto n = sprintf(buffer, ":%lu", line.LineNumber);
+        auto n = sprintf_s(buffer, ":%lu", line.LineNumber);
         Result.append(buffer, n);
         return Result;
     } else {
